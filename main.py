@@ -1,14 +1,12 @@
 from enum import Enum
 
-class Operator(Enum):
-  ADD = '+'
-  SUBTRACT = '-'
-  MULTIPLY = '*'
-  DIVIDE = '/'
-  
-  @classmethod
-  def has_value(cls, value):
-    return value in [item.value for item in Operator]
+## Define Constants
+OPERATORS = {'+' : 1, '-' : 1, '*' : 2, '/' : 2}
+
+class Term(Enum):
+  NONE = 0
+  OPERAND = 1
+  OPERATOR = 2
 
 def tokenize(expr: str) -> list:
   """Takes an expression and returns an array with each term as the correct type
@@ -26,7 +24,7 @@ def tokenize(expr: str) -> list:
     for char in expr:
       if char.isnumeric():
         curr_num += char
-      elif Operator.has_value(char):
+      elif char in OPERATORS:
         if curr_num:
           parsed_expr.append(int(curr_num))
           curr_num = ""
@@ -36,13 +34,47 @@ def tokenize(expr: str) -> list:
           parsed_expr.append(int(curr_num))
           curr_num = ""
       else:
-        print(f'Invalid Character {char}')
+        print(f'Token Error - Invalid Character {char}')
         return []
 
     if curr_num:
       parsed_expr.append(int(curr_num))
       
   return parsed_expr
+
+def parse(expr: list) -> list:
+  """Takes a list that represents an expression and returns an array with the terms in postfix format
+
+  Parameters
+  expr : string
+    list of terms representing the expression
+
+  Returns
+    An array in postfix format or an empty array if expression invalid
+  """
+  postfix_expr = []
+  stack = []
+  prevType = Term.NONE
+  for term in expr:
+    if isinstance(term, int) or isinstance(term, float):
+      if prevType == Term.OPERAND:
+        print('Parse Error - Cannot have two consecutive operands')
+        return []
+      postfix_expr.append(term)
+      prevType = Term.OPERAND
+    elif term in OPERATORS:
+      while stack and OPERATORS[term] <= OPERATORS[stack[-1]]:
+         postfix_expr.append(stack.pop())
+      stack.append(term)
+      prevType = Term.OPERATOR
+    else:
+      print(f'Parse Error - {term} not recognized.')
+      return []
+
+  while stack:
+    postfix_expr.append(stack.pop())
+  
+  return postfix_expr
 
 def main():
   done = False
@@ -51,8 +83,13 @@ def main():
     if user_input == "":
       break
 
-    parsed_expr = tokenize(user_input)
+    token_expr = tokenize(user_input)
     
+    if not token_expr:
+      break
+
+    parsed_expr = parse(token_expr)
+
     if not parsed_expr:
       break
 
