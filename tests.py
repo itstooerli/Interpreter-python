@@ -1,5 +1,5 @@
 import unittest
-from main import *
+from main import tokenize, parse, interpret
 
 class TestTokenize(unittest.TestCase):
   def test_tokenize_invalid_type(self):
@@ -114,6 +114,47 @@ class TestParse(unittest.TestCase):
     data = tokenize('1 + 2 * 3 + 4')
     result = parse(data)
     self.assertEqual(result, [1,2,3,'*','+',4,'+'])
+
+class TestInterpret(unittest.TestCase):
+  def test_interpret_basic_add(self):
+    """
+    Test interpreting of add expression
+    """
+    data = parse(tokenize('2 + 1'))
+    result = interpret(data)
+    self.assertEqual(result, 3)
+
+  def test_interpret_basic_subtract(self):
+    """
+    Test interpret of subtract expression
+    """
+    data = parse(tokenize('2 - 1'))
+    result = interpret(data)
+    self.assertEqual(result, 1)
+
+  def test_interpret_basic_multiply(self):
+    """
+    Test interpret of add expression
+    """
+    data = parse(tokenize('2 * 1'))
+    result = interpret(data)
+    self.assertEqual(result, 2)
+
+  def test_interpret_basic_divide(self):
+    """
+    Test interpret of add expression
+    """
+    data = parse(tokenize('2 / 1'))
+    result = interpret(data)
+    self.assertEqual(result, 2)
+
+  def test_interpret_multiple_operators(self):
+    """
+    Test interpret of add expression
+    """
+    data = parse(tokenize('1 + 2 * 3 + 4'))
+    result = interpret(data)
+    self.assertEqual(result, 11)
 
 if __name__ == '__main__':
     unittest.main()

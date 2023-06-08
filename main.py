@@ -1,7 +1,7 @@
 from enum import Enum
 
 ## Define Constants
-OPERATORS = {'+' : 1, '-' : 1, '*' : 2, '/' : 2}
+OPERATORS = {'+' : 1, '-' : 1, '*' : 2, '/' : 2} # Defines symbol : order of precedence, greater number higher precedence
 
 class Term(Enum):
   NONE = 0
@@ -76,6 +76,44 @@ def parse(expr: list) -> list:
   
   return postfix_expr
 
+def interpret(expr: list) -> int | float | None:
+  """Takes a list that represents an expression and returns the result of the expression
+
+  Parameters
+  expr : string
+    list of terms representing the expression in postfix format
+
+  Returns
+    The result of the simplified expression
+  """
+  stack = []
+
+  for term in expr:
+    if term == '+':
+      operand1 = stack.pop()
+      operand2 = stack.pop()
+      stack.append(operand2 + operand1)
+    elif term == '-':
+      operand1 = stack.pop()
+      operand2 = stack.pop()
+      stack.append(operand2 - operand1)
+    elif term == '*':
+      operand1 = stack.pop()
+      operand2 = stack.pop()
+      stack.append(operand2 * operand1)
+    elif term == '/':
+      operand1 = stack.pop()
+      operand2 = stack.pop()
+      stack.append(operand2 / operand1)
+    else:
+      stack.append(term)
+
+  if len(stack) != 1:
+    print('Interpeter Error - Invalid expression')
+    return None
+    
+  return stack.pop()
+
 def main():
   done = False
   while not done:
@@ -93,7 +131,12 @@ def main():
     if not parsed_expr:
       break
 
-    print(parsed_expr)
+    interpreted_expr = interpret(parsed_expr)
+
+    if interpreted_expr == None:
+      break
+      
+    print(interpreted_expr)
 
 if __name__ == "__main__":
   main()
